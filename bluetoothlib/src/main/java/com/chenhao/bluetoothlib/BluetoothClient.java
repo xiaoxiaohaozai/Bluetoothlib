@@ -4,16 +4,15 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.chenhao.bluetoothlib.btinterface.IBtClient;
+import com.chenhao.bluetoothlib.btinterface.IBluetoothClientListener;
 import com.chenhao.bluetoothlib.btinterface.ICommonBTModule;
 import com.chenhao.bluetoothlib.core.ClassicBluetoothModule;
-import com.chenhao.bluetoothlib.utils.BluetoothHelper;
 
 /**
  * Created by chenhao on 2017/5/19.
  */
 
-public class BluetoothClient implements IBtClient {
+public class BluetoothClient implements IBluetoothClientListener {
 
     private static BluetoothClient bluetoothClient;
     private Context applicationContext;
@@ -22,7 +21,8 @@ public class BluetoothClient implements IBtClient {
 
     private BluetoothClient(Context context) {
         applicationContext = context.getApplicationContext();
-        iCommonBTModule = ClassicBluetoothModule.newInstance(applicationContext);//添加蓝牙模块
+        //添加蓝牙模块
+        iCommonBTModule = ClassicBluetoothModule.newInstance(applicationContext);
     }
 
     /**
@@ -134,9 +134,9 @@ public class BluetoothClient implements IBtClient {
      * @param data
      */
     @Override
-    public void sendMessage(String address, byte[] data) {
+    public void sendMessage(String address, byte[] data,IClientListenerContract.IDataSendListener dataSendListener) {
         if (checkBtModuleNull() && !TextUtils.isEmpty(address) && data != null) {
-            iCommonBTModule.sendMsg(address, data);
+            iCommonBTModule.sendMsg(address, data,dataSendListener);
         }
     }
 
@@ -153,16 +153,28 @@ public class BluetoothClient implements IBtClient {
     }
 
     /**
-     * 销毁蓝牙客户端
+     * 取消蓝牙搜索
      */
     @Override
-    public void onDestroy() {
-        if (checkBtModuleNull()) {
-            iCommonBTModule.onDestory();
-            iCommonBTModule = null;
-        }
-
+    public void cancelBluetoothSearch() {
+       if (checkBtModuleNull()){
+           iCommonBTModule.cancelBtSearch();
+       }
     }
+
+    /**
+     * 得到本地蓝牙名称
+     *
+     * @return
+     */
+    @Override
+    public String getLocalDeviceName() {
+        if (checkBtModuleNull()){
+            return iCommonBTModule.getLocalName();
+        }
+        return null;
+    }
+
 
     /**
      * 对蓝牙状态的监听
@@ -190,5 +202,26 @@ public class BluetoothClient implements IBtClient {
         return iCommonBTModule.currentBtEnable();
     }
 
+    /**
+     * 销毁蓝牙客户端
+     */
+    @Override
+    public void onDestroy() {
+        if (checkBtModuleNull()) {
+            iCommonBTModule.onDestory();
+            iCommonBTModule = null;
+        }
+        applicationContext = null;
+        bluetoothClient = null;
+    }
 
+    /**
+     * 当前蓝牙的开关状态
+     *
+     * @return
+     */
+    @Override
+    public boolean getBluetoothEnable() {
+        return false;
+    }
 }

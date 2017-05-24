@@ -1,15 +1,16 @@
 package com.chenhao.bluetoothlib.btinterface;
 
+
 import com.chenhao.bluetoothlib.IClientListenerContract;
 
 /**
  * Created by chenhao on 2017/5/19.
- * 蓝牙模块所具备的方法
+ * 蓝牙client所具备的方法
  */
 
-public interface IBtClient {
+public interface IBluetoothClientListener {
     /**
-     * 绑定当前模块
+     * 绑定蓝牙模块
      *
      * @param iCommonBTModule
      */
@@ -23,9 +24,16 @@ public interface IBtClient {
 
     void closeBluetooth(IClientListenerContract.IBlueClientIsOpenListener iBlueClientIsOpenListener);
 
-    void sendMessage(String address, byte[] data);
+    void sendMessage(String address, byte[] data,IClientListenerContract.IDataSendListener dataSendListener);
 
     void recevieMessage(IClientListenerContract.IDataReceiveListener iDataReceiveListener);
 
-    void onDestroy();//停止蓝牙
+    void cancelBluetoothSearch();
+
+    String getLocalDeviceName();//本地蓝牙名称
+
+    void onDestroy();//销毁蓝牙实例
+
+    boolean getBluetoothEnable();
+
 }

@@ -27,7 +27,8 @@ public class BluetoothReceiver extends BroadcastReceiver {
     public static final int BLUETOOTH_CONNECTED = 0x06;
     public static final int BLUETOOTH_DISCONNECTED = 0x07;
 
-
+    public BluetoothReceiver() {
+    }
     //蓝牙监听
 
     public BluetoothReceiver(BluetoothStatusListener listener) {
@@ -84,12 +85,12 @@ public class BluetoothReceiver extends BroadcastReceiver {
             case BluetoothDevice.ACTION_ACL_CONNECTED:
                 BluetoothDevice connectDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 handleBLuetoothStatus(BLUETOOTH_CONNECTED, connectDevice);
-                Log.d("BluetoothReceiver", "连接上了"+connectDevice.getName());
+                Log.d("BluetoothReceiver", "连接上了" + connectDevice.getName());
                 break;
             case BluetoothDevice.ACTION_ACL_DISCONNECTED:
 
                 BluetoothDevice disconnectDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.d("BluetoothReceiver", "断开了连接"+disconnectDevice.getName());
+                Log.d("BluetoothReceiver", "断开了连接" + disconnectDevice.getName());
                 handleBLuetoothStatus(BLUETOOTH_DISCONNECTED, disconnectDevice);
                 break;
             case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
@@ -119,7 +120,6 @@ public class BluetoothReceiver extends BroadcastReceiver {
         if (listener == null) {
             return;
         }
-
         switch (status) {
             case BLUETOOTH_DISCOVERY_STARTED:
                 listener.discoverStarted();

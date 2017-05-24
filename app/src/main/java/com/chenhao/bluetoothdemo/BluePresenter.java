@@ -121,7 +121,7 @@ public class BluePresenter
             List<BluetoothDevice> currentBtList = getView().getCurrentBtList();
             if (currentBtList != null && currentBtList.size() > 0) {
                 for (BluetoothDevice device : currentBtList) {
-                    Log.d("BluePresenter", device.getName());
+                    Log.d("BluePresenter", device.getName()+"");
                     if (device.getAddress().equals(bluetoothDevice.getAddress())) {
                         Log.d("BluePresenter", "断开连接" + device.getAddress() + "," + device.getName());
                         BlueListAdapter blueListAdapter = getView().getBlueListAdapter();

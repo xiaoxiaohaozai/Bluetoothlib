@@ -1,22 +1,15 @@
 package com.chenhao.bluetoothdemo;
 
-import android.bluetooth.BluetoothDevice;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.chenhao.bluetoothdemo.adapter.BlueListAdapter;
 import com.chenhao.bluetoothlib.BluetoothClient;
 import com.chenhao.bluetoothlib.IClientListenerContract;
-import com.chenhao.bluetoothlib.utils.BluetoothHelper;
 import com.chenhao.bluetoothlib.utils.ByteUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,9 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         BluetoothClient.getInstance().recevieMessage(new IClientListenerContract.IDataReceiveListener() {
             @Override
-            public void onDataSuccess(byte[] data) {
+            public void onDataSuccess(byte[] data, int length) {
                 Log.d("MainActivity", "data:" + ByteUtils.toString(data));
-                //Toast.makeText(MainActivity.this, ByteUtils.toString(data), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -60,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         bt_1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BluetoothClient.getInstance().sendMessage("00:0C:BF:16:37:E1", new byte[]{(byte) 0xF3, (byte) 0xf4, 0x07, (byte) 0x91, 0x21, 0x01, 0x33, 0x52, (byte) 0xb2, (byte) 0xf1, (byte) 0xfc});
             }
         });
 

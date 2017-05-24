@@ -1,7 +1,6 @@
 package com.chenhao.bluetoothlib.btinterface;
 
 import com.chenhao.bluetoothlib.IClientListenerContract;
-import com.chenhao.bluetoothlib.entity.TypeMessage;
 
 /**
  * Created by chenhao on 2017/5/19.
@@ -17,11 +16,10 @@ public interface ICommonBTModule {
 
     void closeBt(IClientListenerContract.IBlueClientIsOpenListener iBlueClientIsOpenListener);
 
-    void sendMsg(String address, byte[] data);
+    void sendMsg(String address, byte[] data, IClientListenerContract.IDataSendListener dataSendListener);
 
     void readMes(IClientListenerContract.IDataReceiveListener iDataReceiveListener);
 
-    void disconnectBt();
 
     void addBlueStatusListener(IClientListenerContract.IBluetoothStatusListener iBluetoothStatusListener);
 
@@ -30,4 +28,8 @@ public interface ICommonBTModule {
     void onDestory();
 
     boolean currentBtEnable();
+
+    void cancelBtSearch();
+
+    String getLocalName();
 }

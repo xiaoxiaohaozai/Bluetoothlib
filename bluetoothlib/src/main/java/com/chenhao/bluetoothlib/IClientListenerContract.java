@@ -36,11 +36,24 @@ public class IClientListenerContract {
      * 数据接收相关
      */
     public interface IDataReceiveListener {
-        void onDataSuccess(byte[] data);
+        void onDataSuccess(byte[] data, int length);
 
         void onDataFailure(String msg);
     }
 
+    /**
+     * 数据发送监听
+     */
+    public interface IDataSendListener {
+        void onDataSendSuccess(byte[] data);
+
+        void onDataSendFailure(String msg);
+    }
+
+
+    /**
+     * 蓝牙打开成功或关闭
+     */
     public interface IBlueClientIsOpenListener {
         void onOpen();
 
@@ -48,7 +61,7 @@ public class IClientListenerContract {
     }
 
     /**
-     * 蓝牙连接状态
+     * 蓝牙全局状态监听
      */
     public interface IBluetoothStatusListener {
         void discoverStart();

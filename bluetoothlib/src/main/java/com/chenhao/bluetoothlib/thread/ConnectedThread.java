@@ -25,32 +25,6 @@ public class ConnectedThread extends Thread {
     private InputStream mInputStream;
     private OutputStream mOutputStream;
     private OnConnectedListener mOnConnectedListener;
-    public static final int READ_MESSAGE = 0x01;
-    public static final int WRITE_MESSAGE = 0x02;
-    public static final int ERROR_MESSAGE = 0x03;
-    /**
-     * 处理收到消息
-     */
-    Handler handler = new Handler(Looper.getMainLooper()) {
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (mOnConnectedListener == null) {
-                return;
-            }
-            switch (msg.what) {
-                case READ_MESSAGE:
-                    mOnConnectedListener.onReadMessage((byte[]) msg.obj);
-                    break;
-                case WRITE_MESSAGE:
-                    mOnConnectedListener.onWriteMessage((byte[]) msg.obj);
-                    break;
-                case ERROR_MESSAGE:
-                    mOnConnectedListener.onError((String) msg.obj);
-                    break;
-            }
-        }
-    };
 
 
     public ConnectedThread(BluetoothSocket bluetoothSocket, OnConnectedListener onConnectedListener) {
@@ -79,15 +53,18 @@ public class ConnectedThread extends Thread {
             byte[] btButTmp = new byte[READ_LENGTH];
             try {
                 if (mInputStream != null) {
-                    int data = mInputStream.read(btButTmp);
-                    byte[] receiver = Arrays.copyOf(btButTmp, data);
+                    int length = mInputStream.read(btButTmp);
+                    byte[] receiver = Arrays.copyOf(btButTmp, length);
                     Log.d("ConnectedThread", "bluetooth receiver==" + ByteUtils.toString(receiver));
-                    Message message = handler.obtainMessage();
-                    message.what = READ_MESSAGE;
-                    message.obj = receiver;
-                    handler.sendMessage(message);
+                    if (mOnConnectedListener != null) {
+                        mOnConnectedListener.onReadMessage(receiver, length);
+                    }
                 }
             } catch (IOException e) {
+                e.printStackTrace();
+                if (mOnConnectedListener != null) {
+                    mOnConnectedListener.onError(e.getMessage(),true);
+                }
                 break;
             }
         }
@@ -99,17 +76,17 @@ public class ConnectedThread extends Thread {
      * @param bytes
      */
     public void write(byte[] bytes) {
-        Message message = handler.obtainMessage();
         try {
             mOutputStream.write(bytes);
-            message.what = WRITE_MESSAGE;
-            message.obj = bytes;
+            if (mOnConnectedListener != null) {
+                mOnConnectedListener.onWriteMessage(bytes);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            message.what = ERROR_MESSAGE;
-            message.obj = bytes;
+            if (mOnConnectedListener != null) {
+                mOnConnectedListener.onError(e.getMessage(),false);
+            }
         }
-        handler.sendMessage(message);
     }
 
     /**

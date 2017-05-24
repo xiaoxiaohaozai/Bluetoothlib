@@ -21,5 +21,4 @@ public interface BluetoothStatusListener {
     void bluetoothConnected(BluetoothDevice bluetoothDevice);
 
     void bluetoothDisconnect(BluetoothDevice bluetoothDevice);
-
 }

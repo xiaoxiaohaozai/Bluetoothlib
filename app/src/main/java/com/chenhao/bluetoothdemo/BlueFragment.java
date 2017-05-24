@@ -1,7 +1,6 @@
 package com.chenhao.bluetoothdemo;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -13,10 +12,14 @@ import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chenhao.bluetoothdemo.adapter.BlueListAdapter;
 import com.chenhao.bluetoothdemo.base.MVPBaseFragment;
 import com.chenhao.bluetoothdemo.utils.ToastUtils;
+import com.chenhao.bluetoothlib.*;
+import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
+import com.chenhao.bluetoothlib.utils.ByteUtils;
 import com.kyleduo.switchbutton.SwitchButton;
 
 import java.util.ArrayList;
@@ -52,6 +55,43 @@ public class BlueFragment
         sb_bt_control = (SwitchButton) view.findViewById(R.id.sb_bt_control);
         lv_blue_list = (ListView) view.findViewById(R.id.lv_blue_list);
         tv_title = (TextView) view.findViewById(R.id.tv_title);
+
+
+        view.findViewById(R.id.bt_server).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BluetoothUtils.getInstance().openServer(new IClientListenerContract.IServerStatusListener() {
+                    @Override
+                    public void onGetClientSuccess(BluetoothDevice remoteDevice) {
+                        Log.d("BlueFragment", "服务器+ remoteDevice" + remoteDevice);
+                      //  Toast.makeText(getContext(), "服务器remoteDevice:" + remoteDevice, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+
+                    public void onGetClientFailure(String message) {
+                        Log.d("BlueFragment", "服务器" + message);
+                    }
+                });
+            }
+        });
+        view.findViewById(R.id.write).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BluetoothUtils.getInstance().sendMessage(new byte[]{1, 2, 3}, null);
+            }
+        });
+        BluetoothUtils.getInstance().recevieMessage(new IClientListenerContract.IDataReceiveListener() {
+            @Override
+            public void onDataSuccess(byte[] data, int length) {
+                Log.d("BlueFragment", "收到了" + ByteUtils.toString(data));
+            }
+
+            @Override
+            public void onDataFailure(String msg) {
+                Log.d("BlueFragment", "接收" + msg);
+            }
+        });
     }
 
     @Override
@@ -88,13 +128,6 @@ public class BlueFragment
             public void onRefresh() {
                 Log.d("BlueFragment", "执行");
                 mPresenter.searchBluetoothList();
-            }
-        });
-        tv_title.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getContext(),MainActivity.class);
-                startActivity(intent);
             }
         });
     }

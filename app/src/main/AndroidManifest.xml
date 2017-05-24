@@ -17,10 +17,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-
-
-        </activity>
         <receiver android:name="com.chenhao.bluetoothlib.receiver.BluetoothReceiver"></receiver>
         <!--&lt;!&ndash;设计搞尺寸&ndash;&gt;-->
         <!--<meta-data-->

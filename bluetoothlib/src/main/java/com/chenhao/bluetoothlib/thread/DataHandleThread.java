@@ -1,12 +1,9 @@
 package com.chenhao.bluetoothlib.thread;
 
 import android.bluetooth.BluetoothSocket;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
-import com.chenhao.bluetoothlib.btinterface.OnConnectedListener;
+import com.chenhao.bluetoothlib.btinterface.OnDataHandleListener;
 import com.chenhao.bluetoothlib.utils.ByteUtils;
 
 import java.io.IOException;
@@ -19,15 +16,15 @@ import java.util.Arrays;
  * 连接数据处理线程
  */
 
-public class ConnectedThread extends Thread {
+public class DataHandleThread extends Thread {
     private static final int READ_LENGTH = 64;
     private BluetoothSocket mBluetoothSocket;
     private InputStream mInputStream;
     private OutputStream mOutputStream;
-    private OnConnectedListener mOnConnectedListener;
+    private OnDataHandleListener mOnConnectedListener;
 
 
-    public ConnectedThread(BluetoothSocket bluetoothSocket, OnConnectedListener onConnectedListener) {
+    public DataHandleThread(BluetoothSocket bluetoothSocket, OnDataHandleListener onConnectedListener) {
         mBluetoothSocket = bluetoothSocket;
         mOnConnectedListener = onConnectedListener;
         InputStream tempInputStream = null;
@@ -63,7 +60,7 @@ public class ConnectedThread extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
                 if (mOnConnectedListener != null) {
-                    mOnConnectedListener.onError(e.getMessage(),true);
+                    mOnConnectedListener.onError(e.getMessage(), true);
                 }
                 break;
             }
@@ -84,7 +81,7 @@ public class ConnectedThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
             if (mOnConnectedListener != null) {
-                mOnConnectedListener.onError(e.getMessage(),false);
+                mOnConnectedListener.onError(e.getMessage(), false);
             }
         }
     }

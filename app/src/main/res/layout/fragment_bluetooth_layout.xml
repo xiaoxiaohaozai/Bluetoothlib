@@ -12,6 +12,21 @@
         android:layout_weight="1"
         android:background="#3f51b5">
 
+        <Button
+            android:id="@+id/bt_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="服务器" />
+
+        <Button
+            android:id="@+id/write"
+            android:layout_width="100px"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/bt_server"
+            android:text="写" />
+
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"

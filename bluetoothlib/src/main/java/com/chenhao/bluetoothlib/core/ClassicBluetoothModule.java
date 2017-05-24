@@ -9,15 +9,16 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.util.Log;
 
-import com.chenhao.bluetoothlib.IClientListenerContract;
+import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
 import com.chenhao.bluetoothlib.btinterface.BluetoothStatusListener;
 import com.chenhao.bluetoothlib.btinterface.ICommonBTModule;
-import com.chenhao.bluetoothlib.btinterface.OnConnectedListener;
+import com.chenhao.bluetoothlib.btinterface.OnAcceptListener;
+import com.chenhao.bluetoothlib.btinterface.OnDataHandleListener;
 import com.chenhao.bluetoothlib.constants.Constants;
 import com.chenhao.bluetoothlib.receiver.BluetoothReceiver;
-import com.chenhao.bluetoothlib.thread.ConnectedThread;
+import com.chenhao.bluetoothlib.thread.AcceptThread;
+import com.chenhao.bluetoothlib.thread.DataHandleThread;
 import com.chenhao.bluetoothlib.utils.ByteUtils;
-import com.chenhao.bluetoothlib.utils.ClsUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,10 +42,9 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     private ArrayList<BluetoothDevice> mBondedList;
     private ArrayList<BluetoothDevice> mNewList;
     private ArrayList<BluetoothDevice> mBlueDevices;//所有得到设备
-    private ExecutorService mExecutorService = Executors.newCachedThreadPool();
-    //  public volatile STATUS mCurrStatus = STATUS.DISCONNECTED;//默认未连接状态
+    private ExecutorService mExecutorService = Executors.newCachedThreadPool();//用于连接
     private BluetoothSocket mSocket;
-    private ConnectedThread connectedThread;
+    private DataHandleThread dataHandleThread;
     /**
      * 单个蓝牙状态的监听
      */
@@ -57,6 +57,7 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     private List<IClientListenerContract.IBluetoothStatusListener> iBluetoothStatusListeners;
     //本地蓝牙
     private BluetoothAdapter bluetoothAdapter;
+    private AcceptThread acceptThread;
 
     public static ClassicBluetoothModule newInstance(Context context) {
         if (classicBluetoothModule == null) {
@@ -136,47 +137,37 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
                     mSocket.close();
                     mSocket = null;
                 }
-                Log.d(TAG, "准备连接: " + bluetoothAdapter.getAddress() + " " + bluetoothAdapter.getName());
                 mSocket = remoteDevice.createInsecureRfcommSocketToServiceRecord(UUID.fromString(Constants.NEED_UUID));
             } catch (Exception e) {
 
             }
-            //创建数据处理线程
-            if (connectedThread != null) {
-                connectedThread.cancel();
-                connectedThread = null;
+            if (dataHandleThread != null) {
+                dataHandleThread.cancel();
+                dataHandleThread = null;
             }
-            connectDevice();
-        }
-
-    }
-
-    private void connectDevice() {
-        try {
-            mSocket.connect();
-            connectedThread = new ConnectedThread(mSocket, OnConnected);
-            connectedThread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d(TAG, "e:" + e);
             try {
-                mSocket.close();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            if (mConnectListener != null) {
-                mConnectListener.onConnectFailure(e.getMessage());
+                mSocket.connect();
+                dataHandleThread = new DataHandleThread(mSocket, dataHandleListener);
+                dataHandleThread.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                if (mConnectListener != null) {
+                    mConnectListener.onConnectFailure(e.getMessage());
+                }
+                try {
+                    mSocket.close();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
-
     }
-
 
     /**
-     * 连接线程监听
+     * 数据处理线程监听
      */
-    private OnConnectedListener OnConnected = new OnConnectedListener() {
+    private OnDataHandleListener dataHandleListener = new OnDataHandleListener() {
         @Override
         public void onReadMessage(byte[] data, int length) {
             Log.d(TAG, "读取" + ByteUtils.toString(data));
@@ -258,9 +249,9 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         if (!checkSupperBluetooth()) {
             openOrCloseBlue(false);
         }
-        if (connectedThread != null) {
-            connectedThread.cancel();
-            connectedThread = null;
+        if (dataHandleThread != null) {
+            dataHandleThread.cancel();
+            dataHandleThread = null;
         }
         if (mSocket != null) {
             try {
@@ -272,15 +263,10 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     }
 
     @Override
-    public void sendMsg(String address, byte[] data, IClientListenerContract.IDataSendListener dataSendListener) {
+    public void sendMsg(byte[] data, IClientListenerContract.IDataSendListener dataSendListener) {
         this.dataSendListener = dataSendListener;
-        //  TODO 重新连接
-//        if (mCurrStatus != STATUS.CONNECTED) {
-//            //connectBt(address);
-//
-//        }
-        if (connectedThread != null) {
-            connectedThread.write(data);
+        if (dataHandleThread != null) {
+            dataHandleThread.write(data);
         }
 
     }
@@ -330,10 +316,10 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
             iBluetoothStatusListeners.clear();
             iBluetoothStatusListeners = null;
         }
-        if (connectedThread != null) {
-            connectedThread.cancel();
+        if (dataHandleThread != null) {
+            dataHandleThread.cancel();
         }
-        connectedThread = null;
+        dataHandleThread = null;
         mConnectListener = null;
         mIDataReceiveListener = null;
         mIBlueClientIsOpenListener = null;
@@ -365,6 +351,41 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         return null;
     }
 
+    /**
+     * 开启服务器
+     */
+    @Override
+    public void openServer(final IClientListenerContract.IServerStatusListener iServerStatusListener) {
+        if (!checkSupperBluetooth() && checkBluetoothEnable()) {
+            if (acceptThread != null) {
+                acceptThread.cancel();
+                acceptThread = null;
+            }
+            acceptThread = new AcceptThread(bluetoothAdapter, new OnAcceptListener() {
+                @Override
+                public void onGetClientSuccess(BluetoothSocket socket) {
+                    if (iServerStatusListener != null) {
+                        iServerStatusListener.onGetClientSuccess(socket.getRemoteDevice());
+                    }
+                    if (dataHandleThread != null) {
+                        dataHandleThread.cancel();
+                        dataHandleThread = null;
+                    }
+                    dataHandleThread = new DataHandleThread(socket, dataHandleListener);
+                    dataHandleThread.start();
+                }
+
+                @Override
+                public void onGetClientFailure(String message) {
+                    if (iServerStatusListener != null) {
+                        iServerStatusListener.onGetClientFailure(message);
+                    }
+                }
+            });
+            acceptThread.start();
+        }
+
+    }
 
     /**
      * 重置
@@ -378,7 +399,6 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         mBlueDevices = null;
         bluetoothAdapter.cancelDiscovery();
         bluetoothAdapter = null;
-        // mCurrStatus = STATUS.DISCONNECTED;
     }
 
     /********************蓝牙状态监听*******************/
@@ -435,7 +455,6 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
 
     @Override
     public void bluetoothOpenSuccess() {
-        //  mCurrStatus = STATUS.DISCONNECTED;
         Log.d("ClassicBluetoothModule", "蓝牙打开成功");
         if (mIBlueClientIsOpenListener != null) {
             mIBlueClientIsOpenListener.onOpen();
@@ -449,7 +468,6 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
 
     @Override
     public void bluetoothCloseSuccess() {
-        // mCurrStatus = STATUS.DISCONNECTED;
         if (mIBlueClientIsOpenListener != null) {
             mIBlueClientIsOpenListener.onClose();
         }
@@ -459,13 +477,11 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
             }
         }
         Log.d("ClassicBluetoothModule", "蓝牙关闭成功");
-        // reset();
 
     }
 
     @Override
     public void bluetoothConnected(BluetoothDevice bluetoothDevice) {
-        //  mCurrStatus = STATUS.CONNECTED;
         Log.d("ClassicBluetoothModule", "蓝牙连接成功" + bluetoothDevice.getName());
         if (mConnectListener != null) {
             mConnectListener.onConnectSuccess(bluetoothDevice);
@@ -480,9 +496,8 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     @Override
     public void bluetoothDisconnect(BluetoothDevice bluetoothDevice) {
         Log.d("ClassicBluetoothModule", "蓝牙连接失败" + bluetoothDevice.getName());
-        //  mCurrStatus = STATUS.DISCONNECTED;
-        if (connectedThread != null) {
-            connectedThread.cancel();
+        if (dataHandleThread != null) {
+            dataHandleThread.cancel();
         }
         if (mConnectListener != null) {
             mConnectListener.onConnectFailure("");

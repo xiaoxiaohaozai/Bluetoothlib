@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothlib;
+package com.chenhao.bluetoothlib.btinterface;
 
 import android.bluetooth.BluetoothDevice;
 
@@ -12,6 +12,13 @@ import java.util.List;
  */
 
 public class IClientListenerContract {
+    public interface IServerStatusListener {
+        void onGetClientSuccess(BluetoothDevice remoteDevice);
+
+        void onGetClientFailure(String message);
+    }
+
+
     /**
      * 寻找设备相关
      */

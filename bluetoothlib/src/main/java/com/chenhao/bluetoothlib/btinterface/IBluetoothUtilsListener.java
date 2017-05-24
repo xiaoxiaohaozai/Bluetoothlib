@@ -1,14 +1,12 @@
 package com.chenhao.bluetoothlib.btinterface;
 
 
-import com.chenhao.bluetoothlib.IClientListenerContract;
-
 /**
  * Created by chenhao on 2017/5/19.
  * 蓝牙client所具备的方法
  */
 
-public interface IBluetoothClientListener {
+public interface IBluetoothUtilsListener {
     /**
      * 绑定蓝牙模块
      *
@@ -24,7 +22,7 @@ public interface IBluetoothClientListener {
 
     void closeBluetooth(IClientListenerContract.IBlueClientIsOpenListener iBlueClientIsOpenListener);
 
-    void sendMessage(String address, byte[] data,IClientListenerContract.IDataSendListener dataSendListener);
+    void sendMessage( byte[] data,IClientListenerContract.IDataSendListener dataSendListener);
 
     void recevieMessage(IClientListenerContract.IDataReceiveListener iDataReceiveListener);
 

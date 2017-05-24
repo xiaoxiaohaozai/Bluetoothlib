@@ -5,8 +5,8 @@ import android.util.Log;
 
 import com.chenhao.bluetoothdemo.adapter.BlueListAdapter;
 import com.chenhao.bluetoothdemo.base.BaseMVPPresenter;
-import com.chenhao.bluetoothlib.BluetoothClient;
-import com.chenhao.bluetoothlib.IClientListenerContract;
+import com.chenhao.bluetoothlib.BluetoothUtils;
+import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +19,10 @@ public class BluePresenter
         extends BaseMVPPresenter<BlueContract.IView>
         implements BlueContract.IPrensenter, IClientListenerContract.IBluetoothStatusListener {
 
-    private final BluetoothClient bluetoothClient;
+    private final BluetoothUtils bluetoothClient;
 
     public BluePresenter() {
-        bluetoothClient = BluetoothClient.getInstance();
+        bluetoothClient = BluetoothUtils.getInstance();
     }
 
     @Override

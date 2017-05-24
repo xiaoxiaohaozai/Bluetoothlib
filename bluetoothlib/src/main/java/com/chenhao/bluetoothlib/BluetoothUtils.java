@@ -4,22 +4,25 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.chenhao.bluetoothlib.btinterface.IBluetoothClientListener;
+import com.chenhao.bluetoothlib.btinterface.IBluetoothUtilsListener;
+import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
 import com.chenhao.bluetoothlib.btinterface.ICommonBTModule;
+import com.chenhao.bluetoothlib.btinterface.OnAcceptListener;
 import com.chenhao.bluetoothlib.core.ClassicBluetoothModule;
+import com.chenhao.bluetoothlib.thread.AcceptThread;
 
 /**
  * Created by chenhao on 2017/5/19.
  */
 
-public class BluetoothClient implements IBluetoothClientListener {
+public class BluetoothUtils implements IBluetoothUtilsListener {
 
-    private static BluetoothClient bluetoothClient;
+    private static BluetoothUtils bluetoothClient;
     private Context applicationContext;
     //默认是标准蓝牙
     private ICommonBTModule iCommonBTModule;
 
-    private BluetoothClient(Context context) {
+    private BluetoothUtils(Context context) {
         applicationContext = context.getApplicationContext();
         //添加蓝牙模块
         iCommonBTModule = ClassicBluetoothModule.newInstance(applicationContext);
@@ -32,9 +35,9 @@ public class BluetoothClient implements IBluetoothClientListener {
      */
     public static void init(Context context) {
         if (bluetoothClient == null) {
-            synchronized (BluetoothClient.class) {
+            synchronized (BluetoothUtils.class) {
                 if (bluetoothClient == null) {
-                    bluetoothClient = new BluetoothClient(context);
+                    bluetoothClient = new BluetoothUtils(context);
                 }
             }
         }
@@ -45,7 +48,7 @@ public class BluetoothClient implements IBluetoothClientListener {
      *
      * @return
      */
-    public static BluetoothClient getInstance() {
+    public static BluetoothUtils getInstance() {
         if (bluetoothClient != null) {
             return bluetoothClient;
         }
@@ -130,13 +133,12 @@ public class BluetoothClient implements IBluetoothClientListener {
     /**
      * 发送信息
      *
-     * @param address
      * @param data
      */
     @Override
-    public void sendMessage(String address, byte[] data,IClientListenerContract.IDataSendListener dataSendListener) {
-        if (checkBtModuleNull() && !TextUtils.isEmpty(address) && data != null) {
-            iCommonBTModule.sendMsg(address, data,dataSendListener);
+    public void sendMessage(byte[] data, IClientListenerContract.IDataSendListener dataSendListener) {
+        if (checkBtModuleNull() && data != null) {
+            iCommonBTModule.sendMsg(data, dataSendListener);
         }
     }
 
@@ -157,9 +159,9 @@ public class BluetoothClient implements IBluetoothClientListener {
      */
     @Override
     public void cancelBluetoothSearch() {
-       if (checkBtModuleNull()){
-           iCommonBTModule.cancelBtSearch();
-       }
+        if (checkBtModuleNull()) {
+            iCommonBTModule.cancelBtSearch();
+        }
     }
 
     /**
@@ -169,7 +171,7 @@ public class BluetoothClient implements IBluetoothClientListener {
      */
     @Override
     public String getLocalDeviceName() {
-        if (checkBtModuleNull()){
+        if (checkBtModuleNull()) {
             return iCommonBTModule.getLocalName();
         }
         return null;
@@ -223,5 +225,16 @@ public class BluetoothClient implements IBluetoothClientListener {
     @Override
     public boolean getBluetoothEnable() {
         return false;
+    }
+
+    /**
+     * 打开服务器
+     *
+     * @param
+     */
+    public void openServer(IClientListenerContract.IServerStatusListener iServerStatusListener) {
+        if (checkBtModuleNull()) {
+            iCommonBTModule.openServer(iServerStatusListener);
+        }
     }
 }

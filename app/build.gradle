@@ -27,6 +27,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
     testCompile 'junit:junit:4.12'
-    compile project(':bluetoothlib')
-   // compile 'com.chenhao:bluetoothlib:1.0.0'
+    //compile project(':bluetoothlib')
+    compile 'com.chenhao:bluetoothlib:1.0.1'
 }

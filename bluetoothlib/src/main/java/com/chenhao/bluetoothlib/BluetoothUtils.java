@@ -230,7 +230,7 @@ public class BluetoothUtils implements IBluetoothUtilsListener {
     /**
      * 打开服务器
      *
-     * @param
+     *
      */
     public void openServer(IClientListenerContract.IServerStatusListener iServerStatusListener) {
         if (checkBtModuleNull()) {

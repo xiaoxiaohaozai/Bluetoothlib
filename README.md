@@ -1,6 +1,6 @@
 BluetoothLib  
 ====
-该库基于SPP协议（Serial Port Profile）开发，主要用于Android设备与蓝牙模块串口通信  
+*该库基于SPP协议（Serial Port Profile）开发，主要用于Android设备与蓝牙模块串口通信*
 功能表述：  
 ------
 >支持蓝牙模块的扫描  

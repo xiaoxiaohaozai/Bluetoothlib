@@ -1,6 +1,8 @@
-#BluetoothLib  
+BluetoothLib  
+====
 该库基于SPP协议（Serial Port Profile）开发，主要用于Android设备与蓝牙模块串口通信  
-###功能表述：  
+功能表述：  
+------
 >支持蓝牙模块的扫描  
 >支持Android设备和蓝牙模块之间的快速连接  
 >支持串口数据的接收和发送  
@@ -8,8 +10,9 @@
 >支持Ble模块扩展（正在完善中...）  
 >提供一套默认蓝牙功能界面以便使用  
 
-##简单使用  
-###1.初始化  
+简单使用  
+------
+1.初始化
 > 最好是在Application中调用下面代码
 
 	BluetoothUtils.init(this);
@@ -23,7 +26,7 @@
 
 	BluetoothUtils instance = BluetoothUtils.getInstance();
 	
-###2.功能
+2.功能
 >1.打开或关闭蓝牙
 
 	instance.openBluetooth(null); 
@@ -94,7 +97,7 @@
                //接收数据失败
             }
         });	
-###3.扩展
+3.扩展
 >该库是支持添加自定义蓝牙模块，例如ble模块  
 >默认时标准蓝牙模块
 
@@ -152,7 +155,7 @@
 
         void onClose();
     }
-###4.补充  
+4.补充  
 >如果需要的话，本库中提供了一套简单的蓝牙功能界面以便使用，直接添加fragment就行了  
 >例如：  
 	
@@ -171,5 +174,4 @@
         });
 
       	
- 
-
+![github](https://github.com/xiaoxiaohaozai/Bluetoothlib/blob/master/img/test.jpg?raw=true)

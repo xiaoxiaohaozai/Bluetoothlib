@@ -1,7 +1,6 @@
 package com.chenhao.bluetoothdemo;
 
 import android.app.Application;
-
 import com.chenhao.bluetoothlib.BluetoothUtils;
 
 /**

@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view;
 
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;

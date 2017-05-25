@@ -1,10 +1,11 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view;
 
 import android.bluetooth.BluetoothDevice;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.chenhao.bluetoothlib.BluetoothUtils;
+import com.chenhao.bluetoothlib.view.base.BaseMVPPresenter;
 import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
 
 import java.util.ArrayList;
@@ -63,9 +64,9 @@ public class BluePresenter
     }
 
     @Override
-    public void userDefined() {
+    public void userDefined(BluetoothDevice bluetoothDevice) {
         if (isViewAttached()) {
-            getView().handleIntent();
+            getView().handleIntent(bluetoothDevice);
         }
     }
 

@@ -1,9 +1,11 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view.base;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.View;
+
+
 
 /**
  * Created by chenhao on 2017/4/14.

@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 
 import com.chenhao.bluetoothlib.R;
+import com.chenhao.bluetoothlib.view.base.MVPBaseFragment;
 import com.chenhao.bluetoothlib.utils.ToastUtils;
 import com.kyleduo.switchbutton.SwitchButton;
 
@@ -39,6 +40,17 @@ public class BlueFragment
     private List<BluetoothDevice> bluetoothDevices;
     private BlueListAdapter blueListAdapter;
 
+    /**
+     * 创建fragment
+     * @return
+     */
+    public static BlueFragment newInstance() {
+        Bundle args = new Bundle();
+        BlueFragment fragment = new BlueFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -62,7 +74,6 @@ public class BlueFragment
         mPresenter.init();
         initListener();
         initAdapter();
-        mPresenter.searchBluetoothList();//初始化查询
     }
 
 
@@ -77,7 +88,7 @@ public class BlueFragment
         mBlueList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mPresenter.userDefined();
+                mPresenter.userDefined(bluetoothDevices.get(position));
             }
         });
         //点击刷新
@@ -132,6 +143,9 @@ public class BlueFragment
     @Override
     public void controlBlueButton(boolean isOpen) {
         mBtSwitch.setCheckedNoEvent(isOpen);
+        if (isOpen) {
+            mPresenter.searchBluetoothList();//初始化查询
+        }
     }
 
     @Override
@@ -142,8 +156,10 @@ public class BlueFragment
 
 
     @Override
-    public void handleIntent() {//自定一操作
-
+    public void handleIntent(BluetoothDevice bluetoothDevice) {//自定一操作
+        if (onUserActionListener != null) {
+            onUserActionListener.onHandleIntent(bluetoothDevice);
+        }
     }
 
 
@@ -170,6 +186,10 @@ public class BlueFragment
     @Override
     public void handeleback() {
         //TODO 执行返回操作
+        if (onUserActionListener != null) {
+            onUserActionListener.onBack();
+        }
+
     }
 
     @Override
@@ -181,5 +201,16 @@ public class BlueFragment
 
     }
 
+    private OnUserActionListener onUserActionListener;
+
+    public void setOnUserActionListener(OnUserActionListener onUserActionListener) {
+        this.onUserActionListener = onUserActionListener;
+    }
+
+    public interface OnUserActionListener {
+        void onBack();
+
+        void onHandleIntent(BluetoothDevice bluetoothDevice);
+    }
 
 }

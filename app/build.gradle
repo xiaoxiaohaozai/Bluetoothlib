@@ -28,5 +28,5 @@ dependencies {
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
     testCompile 'junit:junit:4.12'
     compile project(':bluetoothlib')
-    //compile 'com.kyleduo.switchbutton:library:1.4.6'
+   // compile 'com.chenhao:bluetoothlib:1.0.0'
 }

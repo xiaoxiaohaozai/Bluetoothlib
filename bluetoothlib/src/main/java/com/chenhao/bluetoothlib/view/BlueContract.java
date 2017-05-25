@@ -1,6 +1,10 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view;
 
 import android.bluetooth.BluetoothDevice;
+
+
+import com.chenhao.bluetoothlib.view.base.IBasePresenter;
+import com.chenhao.bluetoothlib.view.base.IBaseView;
 
 import java.util.List;
 
@@ -9,13 +13,13 @@ import java.util.List;
  */
 
 public class BlueContract {
-    interface IView extends IBaseView {
+     interface IView extends IBaseView {
 
         void controlBlueButton(boolean isOpen);//控制蓝牙按钮状态
 
         void foundSingleDevice(BluetoothDevice bluetoothDevice);
 
-        void handleIntent();//跳转
+        void handleIntent(BluetoothDevice bluetoothDevice);//跳转
 
         void updateBtList();//更新列表
 
@@ -30,7 +34,7 @@ public class BlueContract {
         void clearBtList();
     }
 
-    interface IPrensenter extends IBasePresenter<IView> {
+     interface IPrensenter extends IBasePresenter<IView> {
         void init();//初始化配置
 
         void openOrCloseBlue(boolean isOpen);
@@ -39,7 +43,7 @@ public class BlueContract {
 
         void connectBluetooth(String adress);
 
-        void userDefined();//用户自定义操作
+        void userDefined(BluetoothDevice bluetoothDevice);//用户自定义操作
 
         void back();
     }

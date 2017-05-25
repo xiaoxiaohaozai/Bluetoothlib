@@ -5,8 +5,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--6.0以后需要添加-->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 
     <application
@@ -18,19 +18,18 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver android:name="com.chenhao.bluetoothlib.receiver.BluetoothReceiver"></receiver>
-        <!--&lt;!&ndash;设计搞尺寸&ndash;&gt;-->
-        <!--<meta-data-->
-            <!--android:name="design_width"-->
-            <!--android:value="750" />-->
-        <!--<meta-data-->
-            <!--android:name="design_height"-->
-            <!--android:value="1334" />-->
-        <activity android:name=".TestActivity">
+
+        <activity
+            android:name=".activity.MessageActivity" android:launchMode="singleTop"></activity>
+
+        <activity android:name=".activity.TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".activity.BlueListActivity"></activity>
     </application>
 </manifest>

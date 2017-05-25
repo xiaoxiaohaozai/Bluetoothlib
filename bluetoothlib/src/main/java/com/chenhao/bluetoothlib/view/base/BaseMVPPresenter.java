@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothlib.bluetoothview;
+package com.chenhao.bluetoothlib.view.base;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -34,4 +34,5 @@ public abstract class BaseMVPPresenter<V extends IBaseView> implements IBasePres
     public boolean isViewAttached() {
         return mViewRef != null && mViewRef.get() != null;
     }
+    
 }

@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothdemo.base;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 /**
  * Created by chenhao on 2017/4/14.

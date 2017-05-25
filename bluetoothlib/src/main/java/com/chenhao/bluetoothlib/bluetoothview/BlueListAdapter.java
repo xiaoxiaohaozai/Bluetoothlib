@@ -1,11 +1,9 @@
-package com.chenhao.bluetoothdemo.adapter;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
-import android.os.ParcelUuid;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +11,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.chenhao.bluetoothdemo.R;
+
+import com.chenhao.bluetoothlib.R;
 
 import java.util.List;
 
@@ -75,7 +74,6 @@ public class BlueListAdapter extends BaseAdapter {
             holder.tv_blue_name = (TextView) convertView.findViewById(R.id.tv_blue_name);
             holder.iv_blue_icon = (ImageView) convertView.findViewById(R.id.iv_blue_icon);
             holder.tv_blue_address = (TextView) convertView.findViewById(R.id.tv_blue_address);
-            holder.tv_blue_type = (TextView) convertView.findViewById(R.id.tv_blue_type);
             holder.tv_blue_bond = (TextView) convertView.findViewById(R.id.tv_blue_bond);
             holder.tv_blue_connect = (TextView) convertView.findViewById(R.id.tv_blue_connect);
             convertView.setTag(holder);
@@ -90,22 +88,24 @@ public class BlueListAdapter extends BaseAdapter {
         }
         holder.tv_blue_address.setText(item.getAddress());
         holder.tv_blue_connect.setText("未连接");
-        holder.tv_blue_type.setText("未知类型");
         holder.tv_blue_bond.setText("未配对");
         int bondState = item.getBondState(); //bond状态
         if (bondState == BluetoothDevice.BOND_BONDED) {
             holder.tv_blue_bond.setText("已配对");
         }
+        holder.iv_blue_icon.setBackgroundResource(R.drawable.bt_icon_type_nomal);
         BluetoothClass bluetoothClass = item.getBluetoothClass();//蓝牙类
-        int deviceClass = bluetoothClass.getDeviceClass();//获得设备类型
-        if (deviceClass == 524) {
-            holder.tv_blue_type.setText("智能手机");
-        }
-        if (deviceClass == 512) {
-            holder.tv_blue_type.setText("位置类别");
-        }
-        if (deviceClass == 268) {
-            holder.tv_blue_type.setText("电脑");
+        if (bluetoothClass != null) {
+            int deviceClass = bluetoothClass.getDeviceClass();//获得设备类型
+            if (deviceClass == 524) {
+                holder.iv_blue_icon.setBackgroundResource(R.drawable.bt_icon_type_phone);
+            }
+            if (deviceClass == 512) {
+                holder.iv_blue_icon.setBackgroundResource(R.drawable.bt_icon_type_nomal);
+            }
+            if (deviceClass == 268) {
+                holder.iv_blue_icon.setBackgroundResource(R.drawable.bt_icon_type_pc);
+            }
         }
         if (currentedconnectDevice != null && currentedconnectDevice.getAddress().equals(item.getAddress())) {
             holder.tv_blue_connect.setText("已连接");
@@ -133,7 +133,6 @@ public class BlueListAdapter extends BaseAdapter {
         ImageView iv_blue_icon;
         TextView tv_blue_name;
         TextView tv_blue_address;
-        TextView tv_blue_type;
         TextView tv_blue_bond;
         TextView tv_blue_connect;
 

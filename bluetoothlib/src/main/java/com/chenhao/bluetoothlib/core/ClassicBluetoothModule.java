@@ -420,8 +420,8 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         Log.d("ClassicBluetoothModule", "扫描结束");
         Log.d("ClassicBluetoothModule", "mBondedList:" + mBondedList.size() + "," + mBondedList);
         Log.d("ClassicBluetoothModule", "mNewList:" + mNewList.size() + "," + mNewList);
-        mBlueDevices.addAll(mNewList);
-        mBlueDevices.addAll(0, mBondedList);
+//        mBlueDevices.addAll(mNewList);
+//        mBlueDevices.addAll(0, mBondedList);
         if (onSearchDeviceListener != null) {
             onSearchDeviceListener.onSearchEnd(mBlueDevices);
         }
@@ -443,14 +443,18 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         } else if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
             mBondedList.add(bluetoothDevice);
         }
+        if (mBlueDevices.indexOf(bluetoothDevice) == -1) {
+            mBlueDevices.add(bluetoothDevice);
+            if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
+                for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
+                    listener.bluetoothFound(bluetoothDevice);
+                }
+            }
+        }
         if (onSearchDeviceListener != null) {
             onSearchDeviceListener.onFindDevice(bluetoothDevice);
         }
-        if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
-            for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
-                listener.bluetoothFound(bluetoothDevice);
-            }
-        }
+
     }
 
     @Override
@@ -516,6 +520,7 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
      * @return BluetoothAdapter
      * @hide
      */
+
     private BluetoothAdapter getAdapter() {
         BluetoothAdapter mBluetoothAdapter;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {//18以后

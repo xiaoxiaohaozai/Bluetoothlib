@@ -1,10 +1,6 @@
-package com.chenhao.bluetoothdemo;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 import android.bluetooth.BluetoothDevice;
-
-import com.chenhao.bluetoothdemo.adapter.BlueListAdapter;
-import com.chenhao.bluetoothdemo.base.IBasePresenter;
-import com.chenhao.bluetoothdemo.base.IBaseView;
 
 import java.util.List;
 
@@ -17,13 +13,9 @@ public class BlueContract {
 
         void controlBlueButton(boolean isOpen);//控制蓝牙按钮状态
 
-        void loadBtListSuccess(BluetoothDevice bluetoothDevice);
-
-        void loadBtListFailure();
+        void foundSingleDevice(BluetoothDevice bluetoothDevice);
 
         void handleIntent();//跳转
-
-        void controlSearchText(int state);//-1 0 1
 
         void updateBtList();//更新列表
 
@@ -31,6 +23,11 @@ public class BlueContract {
 
         BlueListAdapter getBlueListAdapter();
 
+        void setLocalDeviceName(String name);
+
+        void handeleback();
+
+        void clearBtList();
     }
 
     interface IPrensenter extends IBasePresenter<IView> {
@@ -42,5 +39,8 @@ public class BlueContract {
 
         void connectBluetooth(String adress);
 
+        void userDefined();//用户自定义操作
+
+        void back();
     }
 }

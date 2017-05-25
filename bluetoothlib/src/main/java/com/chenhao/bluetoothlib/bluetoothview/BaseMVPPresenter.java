@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothdemo.base;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;

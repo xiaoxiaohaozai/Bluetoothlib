@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/ft"
-        android:name="com.chenhao.bluetoothdemo.BlueFragment"
+        android:name="com.chenhao.bluetoothlib.bluetoothview.BlueFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></fragment>
 </LinearLayout>

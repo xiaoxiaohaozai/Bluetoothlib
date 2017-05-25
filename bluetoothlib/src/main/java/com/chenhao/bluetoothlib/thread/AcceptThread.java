@@ -1,12 +1,10 @@
 package com.chenhao.bluetoothlib.thread;
 
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 
 import com.chenhao.bluetoothlib.btinterface.OnAcceptListener;
-import com.chenhao.bluetoothlib.btinterface.OnDataHandleListener;
 import com.chenhao.bluetoothlib.constants.Constants;
 
 import java.io.IOException;

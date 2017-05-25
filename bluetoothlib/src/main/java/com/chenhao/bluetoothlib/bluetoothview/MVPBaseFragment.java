@@ -1,4 +1,4 @@
-package com.chenhao.bluetoothdemo.base;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

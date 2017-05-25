@@ -1,10 +1,9 @@
-package com.chenhao.bluetoothdemo;
+package com.chenhao.bluetoothlib.bluetoothview;
 
 import android.bluetooth.BluetoothDevice;
+import android.text.TextUtils;
 import android.util.Log;
 
-import com.chenhao.bluetoothdemo.adapter.BlueListAdapter;
-import com.chenhao.bluetoothdemo.base.BaseMVPPresenter;
 import com.chenhao.bluetoothlib.BluetoothUtils;
 import com.chenhao.bluetoothlib.btinterface.IClientListenerContract;
 
@@ -32,7 +31,12 @@ public class BluePresenter
             return;
         }
         getView().controlBlueButton(bluetoothClient.getCurrentBluetoothEnable());
-        getView().controlSearchText(-1);//默认是
+        String localDeviceName = bluetoothClient.getLocalDeviceName();
+        if (!TextUtils.isEmpty(localDeviceName)) {
+            getView().setLocalDeviceName("名称：" + localDeviceName);
+        } else {
+            getView().setLocalDeviceName("名称：无法读取");
+        }
     }
 
     @Override
@@ -41,12 +45,15 @@ public class BluePresenter
             bluetoothClient.openBluetooth(null);
         } else {
             bluetoothClient.closeBluetooth(null);
+            getView().clearBtList();
         }
     }
 
     @Override
     public void searchBluetoothList() {
-        Log.d("BluePresenter", "执行");
+        if (isViewAttached()){
+            getView().clearBtList();
+        }
         bluetoothClient.searchBluetoothDevices(null);
     }
 
@@ -56,23 +63,40 @@ public class BluePresenter
     }
 
     @Override
+    public void userDefined() {
+        if (isViewAttached()) {
+            getView().handleIntent();
+        }
+    }
+
+    @Override
+    public void back() {
+        bluetoothClient.cancelBluetoothSearch();
+        if (isViewAttached()) {
+            getView().handeleback();
+        }
+    }
+
+
+    /*****************蓝牙状态监听*****************/
+    @Override
     public void discoverStart() {
         if (isViewAttached()) {
-            getView().controlSearchText(0);
+            getView().showLoading();
         }
     }
 
     @Override
     public void discoverEnd(ArrayList<BluetoothDevice> mBlueDevices) {
         if (isViewAttached()) {
-            getView().controlSearchText(1);
+            getView().hideLoading();
         }
     }
 
     @Override
     public void bluetoothFound(BluetoothDevice bluetoothDevice) {
         if (isViewAttached()) {
-            getView().loadBtListSuccess(bluetoothDevice);
+            getView().foundSingleDevice(bluetoothDevice);
         }
     }
 
@@ -87,6 +111,7 @@ public class BluePresenter
     @Override
     public void bluetoothClose() {
         if (isViewAttached()) {
+            getView().hideLoading();
             getView().controlBlueButton(false);
         }
 
@@ -99,9 +124,7 @@ public class BluePresenter
             List<BluetoothDevice> currentBtList = getView().getCurrentBtList();
             if (currentBtList != null && currentBtList.size() > 0) {
                 for (BluetoothDevice device : currentBtList) {
-                    Log.d("BluePresenter", "" + device.getName());
                     if (device.getAddress().equals(bluetoothDevice.getAddress())) {
-                        Log.d("BluePresenter", "连接了" + device.getAddress() + "," + device.getName());
                         BlueListAdapter blueListAdapter = getView().getBlueListAdapter();
                         blueListAdapter.setCurrentConnectBt(bluetoothDevice);
                         getView().updateBtList();
@@ -117,11 +140,9 @@ public class BluePresenter
     @Override
     public void bluetoothDisconnect(BluetoothDevice bluetoothDevice) {
         if (isViewAttached()) {
-            getView().showToast("断开连接" + bluetoothDevice.getName());
             List<BluetoothDevice> currentBtList = getView().getCurrentBtList();
             if (currentBtList != null && currentBtList.size() > 0) {
                 for (BluetoothDevice device : currentBtList) {
-                    Log.d("BluePresenter", device.getName()+"");
                     if (device.getAddress().equals(bluetoothDevice.getAddress())) {
                         Log.d("BluePresenter", "断开连接" + device.getAddress() + "," + device.getName());
                         BlueListAdapter blueListAdapter = getView().getBlueListAdapter();

@@ -32,6 +32,8 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
+    compile 'com.kyleduo.switchbutton:library:1.4.6'//开关
+    compile 'com.tuyenmonkey:mkloader:1.2.0'//进度
 }
 
 //jcenter 配置

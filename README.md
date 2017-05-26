@@ -1,8 +1,6 @@
 BluetoothLib  
 ====
-
-该库基于SPP协议（Serial Port Profile）开发，主要用于Android设备与蓝牙模块串口通信
-
+*该库基于SPP协议（Serial Port Profile）开发，主要用于Android设备与蓝牙模块串口通信*
 功能表述：  
 ------
 >支持蓝牙模块的扫描  
@@ -14,7 +12,12 @@ BluetoothLib
 
 简单使用  
 ------
-1.初始化
+1.初始化  
+>添加依赖  
+	
+	 compile 'com.chenhao:bluetoothlib:1.0.1'
+
+
 > 最好是在Application中调用下面代码
 
 	BluetoothUtils.init(this);

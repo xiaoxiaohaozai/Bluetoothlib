@@ -37,6 +37,8 @@ public class IClientListenerContract {
         void onConnectSuccess(BluetoothDevice bluetoothDevice);
 
         void onConnectFailure(String msg);
+
+        void onConnecting();//正在连接中
     }
 
     /**
@@ -81,8 +83,10 @@ public class IClientListenerContract {
 
         void bluetoothClose();
 
+        void bluetoothConnectFailure();//尝试连接失败
+
         void bluetoothConnected(BluetoothDevice bluetoothDevice);
 
-        void bluetoothDisconnect(BluetoothDevice bluetoothDevice);
+        void bluetoothDisconnect();//连接断开
     }
 }

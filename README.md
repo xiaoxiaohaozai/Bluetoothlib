@@ -15,17 +15,12 @@ BluetoothLib
 1.初始化  
 >添加依赖  
 	
-	 compile 'com.chenhao:bluetoothlib:1.0.1'
+	 compile 'com.chenhao:bluetoothlib:1.0.3'
 
 
 > 最好是在Application中调用下面代码
 
 	BluetoothUtils.init(this);
-
-	
->在结束时调用
-
-	BluetoothUtils.getInstance().onDestroy();  
 	
 >获得实例  
 
@@ -44,52 +39,71 @@ BluetoothLib
 	
 >3.连接蓝牙模块
 
-	instance.connectDevice(adress, null);  
+	  BluetoothUtils.getInstance().connectDevice("", new IClientListenerContract.IConnectListener() {
+                        @Override
+                        public void onConnectSuccess(BluetoothDevice bluetoothDevice) {
+    
+                        }
+    
+                        @Override
+                        public void onConnectFailure(String msg) {
+    
+                        }
+    
+                        @Override
+                        public void onConnecting() {
+    
+                        }
+                    });
 	
 >4.对蓝牙当前蓝牙状态的监听
-	
-	   BluetoothUtils.getInstance().addBlueStasusLitener(new IClientListenerContract.IBluetoothStatusListener() {
-            @Override
-            public void discoverStart() {
-            //扫描开始
-            }
-
-            @Override
-            public void discoverEnd(ArrayList<BluetoothDevice> mBlueDevices) {
-            //扫描结束
-            }
-
-            @Override
-            public void bluetoothFound(BluetoothDevice bluetoothDevice) {
-            //发现一个设备
-            }
-
-            @Override
-            public void bluetoothOpen() {
-             //蓝牙打开
-            }
-
-            @Override
-            public void bluetoothClose() {
-             //蓝牙关闭
-            }
-
-            @Override
-            public void bluetoothConnected(BluetoothDevice bluetoothDevice) {
-             //蓝牙连接
-            }
-
-            @Override
-            public void bluetoothDisconnect(BluetoothDevice bluetoothDevice) {
-             //蓝牙断开
-            }
-        });
-    }
+       
+         BluetoothUtils.getInstance().addBlueStasusLitener(new IClientListenerContract.IBluetoothStatusListener() {
+                @Override
+                public void discoverStart() {
+                    
+                }
     
+                @Override
+                public void discoverEnd(ArrayList<BluetoothDevice> mBlueDevices) {
+    
+                }
+    
+                @Override
+                public void bluetoothFound(BluetoothDevice bluetoothDevice) {
+    
+                }
+    
+                @Override
+                public void bluetoothOpen() {
+    
+                }
+    
+                @Override
+                public void bluetoothClose() {
+    
+                }
+    
+                @Override
+                public void bluetoothConnectFailure() {
+    
+                }
+    
+                @Override
+                public void bluetoothConnected(BluetoothDevice bluetoothDevice) {
+    
+                }
+    
+                @Override
+                public void bluetoothDisconnect() {
+    
+                }
+            });
+   
 >5.发送数据
 
 	BluetoothUtils.getInstance().sendMessage(new byte[]{},null);  
->6.接收数据
+>6.接收数据(最好在发送数据之前注册)
 	
 	    BluetoothUtils.getInstance().recevieMessage(new IClientListenerContract.IDataReceiveListener() {
             @Override
@@ -102,81 +116,46 @@ BluetoothLib
                //接收数据失败
             }
         });	
-3.扩展
->该库是支持添加自定义蓝牙模块，例如ble模块  
->默认时标准蓝牙模块
-
-	 BluetoothUtils.getInstance().bindBlueModule(ClassicBluetoothModule.newInstance(this)); 
-	 
->如果需要扩展请实现
-		
-	ICommonBTModule接口，具体看Demo
+3.扩展	 
 >该库也支持对单个功能状态进行监听  
 
-    /**
-     * 寻找设备相关
-     */
-    public interface ISearchDeviceListener {
-        void onSearchStart();
+     public interface IServerStatusListener {
+           void onGetClientSuccess(BluetoothDevice remoteDevice);
+   
+           void onGetClientFailure(String message);
+       }
+   
+   
+       /**
+        * 寻找设备相关
+        */
+       public interface ISearchDeviceListener {
+           void onSearchStart();
+   
+           void onFindDevice(BluetoothDevice bluetoothDevice);
+   
+           void onSearchEnd(List<BluetoothDevice> bluetoothDevices);
+       }
+   
+       /**
+        * 连接相关
+        */
+       public interface IConnectListener {
+           void onConnectSuccess(BluetoothDevice bluetoothDevice);
+   
+           void onConnectFailure(String msg);
+   
+           void onConnecting();//正在连接中
+       }
+   
+       /**
+        * 数据接收相关
+        */
+       public interface IDataReceiveListener {
+           void onDataSuccess(byte[] data, int length);
+   
+           void onDataFailure(String msg);
+       }
 
-        void onFindDevice(BluetoothDevice bluetoothDevice);
-
-        void onSearchEnd(List<BluetoothDevice> bluetoothDevices);
-    }
-
-    /**
-     * 连接相关
-     */
-    public interface IConnectListener {
-        void onConnectSuccess(BluetoothDevice bluetoothDevice);
-
-        void onConnectFailure(String msg);
-    }
-
-    /**
-     * 数据接收相关
-     */
-    public interface IDataReceiveListener {
-        void onDataSuccess(byte[] data, int length);
-
-        void onDataFailure(String msg);
-    }
-
-    /**
-     * 数据发送监听
-     */
-    public interface IDataSendListener {
-        void onDataSendSuccess(byte[] data);
-
-        void onDataSendFailure(String msg);
-    }
-
-
-    /**
-     * 蓝牙打开成功或关闭
-     */
-    public interface IBlueClientIsOpenListener {
-        void onOpen();
-
-        void onClose();
-    }
-4.补充  
->如果需要的话，本库中提供了一套简单的蓝牙功能界面以便使用，直接添加fragment就行了  
->例如：  
-	
-	    BlueFragment blueFragment = BlueFragment.newInstance();                  
-	    getSupportFragmentManager().beginTransaction().replace(R.id.fl,blueFragment).commit();
-        blueFragment.setOnUserActionListener(new BlueFragment.OnUserActionListener() {
-            @Override
-            public void onBack() {//添加返回监听
- 
-            }
-
-            @Override
-            public void onHandleIntent(BluetoothDevice bluetoothDevice) {//处理事件
-
-            }
-        });
 
       	
-![github](https://github.com/xiaoxiaohaozai/Bluetoothlib/blob/master/img/test.jpg?raw=true)

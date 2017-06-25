@@ -132,6 +132,7 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         public void run() {
             bluetoothAdapter.cancelDiscovery();//取消搜索
             BluetoothDevice remoteDevice = bluetoothAdapter.getRemoteDevice(address);
+            Log.d(TAG, remoteDevice.getAddress() + "" + remoteDevice.getName());
             try {
                 if (mSocket != null) {
                     mSocket.close();
@@ -146,13 +147,30 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
                 dataHandleThread = null;
             }
             try {
+                Log.d(TAG, "连接中");
                 mSocket.connect();
+                Log.d(TAG, "连接上了");
                 dataHandleThread = new DataHandleThread(mSocket, dataHandleListener);
                 dataHandleThread.start();
+                //回调连接成功监听
+                if (mConnectListener != null) {
+                    mConnectListener.onConnectSuccess(remoteDevice);
+                }
+                if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
+                    for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
+                        listener.bluetoothConnected(remoteDevice);
+                    }
+                }
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.d(TAG, "蓝牙尝试连接失败");
                 if (mConnectListener != null) {
                     mConnectListener.onConnectFailure(e.getMessage());
+                }
+                if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
+                    for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
+                        listener.bluetoothConnectFailure();
+                    }
                 }
                 try {
                     mSocket.close();
@@ -186,13 +204,22 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
         }
 
         @Override
-        public void onError(String error, boolean isRead) {
+        public void onError(String error, boolean isRead) {//不能读取数据和连接断开会走这个方法
             Log.d(TAG, "错误" + error);
             if (mIDataReceiveListener != null && isRead) {
                 mIDataReceiveListener.onDataFailure(error);
             }
             if (dataSendListener != null && !isRead) {
                 dataSendListener.onDataSendFailure(error);
+            }
+            //通知断开连接
+            if (mConnectListener != null) {
+                mConnectListener.onConnectFailure(error);
+            }
+            if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
+                for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
+                    listener.bluetoothDisconnect();
+                }
             }
 
         }
@@ -418,10 +445,6 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     @Override
     public void discoverFinshed() {
         Log.d("ClassicBluetoothModule", "扫描结束");
-        Log.d("ClassicBluetoothModule", "mBondedList:" + mBondedList.size() + "," + mBondedList);
-        Log.d("ClassicBluetoothModule", "mNewList:" + mNewList.size() + "," + mNewList);
-//        mBlueDevices.addAll(mNewList);
-//        mBlueDevices.addAll(0, mBondedList);
         if (onSearchDeviceListener != null) {
             onSearchDeviceListener.onSearchEnd(mBlueDevices);
         }
@@ -436,14 +459,16 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
     public void bluetoothFound(BluetoothDevice bluetoothDevice) {
         Log.d("ClassicBluetoothModule", "发现蓝牙" + bluetoothDevice);
         if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_NONE) {
-            if (mNewList.indexOf(bluetoothDevice) == -1) {//防止重复添加
+            if (mNewList != null && mNewList.indexOf(bluetoothDevice) == -1) {//防止重复添加
                 mNewList.add(bluetoothDevice);
             }
 
         } else if (bluetoothDevice.getBondState() == BluetoothDevice.BOND_BONDED) {
-            mBondedList.add(bluetoothDevice);
+            if (mBondedList != null) {
+                mBondedList.add(bluetoothDevice);
+            }
         }
-        if (mBlueDevices.indexOf(bluetoothDevice) == -1) {
+        if (mBlueDevices != null && mBlueDevices.indexOf(bluetoothDevice) == -1) {
             mBlueDevices.add(bluetoothDevice);
             if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
                 for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
@@ -486,31 +511,13 @@ public class ClassicBluetoothModule implements ICommonBTModule, BluetoothStatusL
 
     @Override
     public void bluetoothConnected(BluetoothDevice bluetoothDevice) {
-        Log.d("ClassicBluetoothModule", "蓝牙连接成功" + bluetoothDevice.getName());
-        if (mConnectListener != null) {
-            mConnectListener.onConnectSuccess(bluetoothDevice);
-        }
-        if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
-            for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
-                listener.bluetoothConnected(bluetoothDevice);
-            }
-        }
+        // Log.d("ClassicBluetoothModule", "蓝牙连接成功" + bluetoothDevice.getName());
+
     }
 
     @Override
     public void bluetoothDisconnect(BluetoothDevice bluetoothDevice) {
-        Log.d("ClassicBluetoothModule", "蓝牙连接失败" + bluetoothDevice.getName());
-        if (dataHandleThread != null) {
-            dataHandleThread.cancel();
-        }
-        if (mConnectListener != null) {
-            mConnectListener.onConnectFailure("");
-        }
-        if (iBluetoothStatusListeners != null && iBluetoothStatusListeners.size() > 0) {
-            for (IClientListenerContract.IBluetoothStatusListener listener : iBluetoothStatusListeners) {
-                listener.bluetoothDisconnect(bluetoothDevice);
-            }
-        }
+        // Log.d("ClassicBluetoothModule", "蓝牙连接失败" + bluetoothDevice.getName());
     }
 
 
